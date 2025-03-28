@@ -3,7 +3,7 @@ name: Push to Hugging Face
 on:
   push:
     branches:
-      - main
+      - main  # Change if needed
 
 jobs:
   push_to_huggingface:
@@ -21,8 +21,11 @@ jobs:
       - name: Install Hugging Face Hub
         run: pip install huggingface_hub
 
-      - name: Login to Hugging Face
-        run: echo "${{ secrets.HG }}" | huggingface-cli login --token
+      - name: Set Hugging Face Token
+        run: |
+          mkdir -p ~/.huggingface
+          echo "${{ secrets.HG }}" > ~/.huggingface/token
+        shell: bash
 
       - name: Push files to Hugging Face
         run: |
