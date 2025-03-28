@@ -21,15 +21,31 @@ jobs:
       - name: Install Hugging Face Hub
         run: pip install huggingface_hub
 
-      - name: Set Hugging Face Token
-        run: |
-          mkdir -p ~/.huggingface
-          echo "${{ secrets.HG }}" > ~/.huggingface/token
-        shell: bash
+      - name: Login to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HG }}
+        run: huggingface-cli login --token $HF_TOKEN
 
-      - name: Push files to Hugging Face
+      - name: Upload files to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HG }}
         run: |
-          from huggingface_hub import Repository
-          repo = Repository(local_dir="hack_hound", clone_from="rithuikprakash/hack_hound", use_auth_token=True)
-          repo.push_to_hub()
+          from huggingface_hub import HfApi
+          import os
+
+          api = HfApi()
+          repo_id = "rithuikprakash/hack_hound"
+          folder_path = "./"  # Change this if your files are inside a specific folder
+
+          # Upload all files in the repo
+          for file in os.listdir(folder_path):
+              file_path = os.path.join(folder_path, file)
+              if os.path.isfile(file_path):
+                  api.upload_file(
+                      path_or_fileobj=file_path,
+                      path_in_repo=file,
+                      repo_id=repo_id,
+                      repo_type="space",
+                      token=os.getenv("HF_TOKEN")
+                  )
         shell: python
