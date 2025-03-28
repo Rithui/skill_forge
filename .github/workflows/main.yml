@@ -1,0 +1,36 @@
+name: Push to Hugging Face
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch
+
+jobs:
+  push_to_huggingface:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Hugging Face Hub
+        run: pip install huggingface_hub
+
+      - name: Login to Hugging Face
+        run: huggingface-cli login --token ${{ secrets.HG }}
+
+      - name: Push files to Hugging Face
+        run: |
+          from huggingface_hub import HfApi
+          api = HfApi()
+          api.upload_folder(
+              folder_path=".",  # Change to the folder you want to upload
+              repo_id="hack_hound",  # Replace with your HF repo
+              repo_type="model"  # Use "dataset" if uploading a dataset
+          )
+        shell: python
