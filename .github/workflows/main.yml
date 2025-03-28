@@ -3,7 +3,7 @@ name: Push to Hugging Face
 on:
   push:
     branches:
-      - main  # Change this to your main branch
+      - main  # Change if needed
 
 jobs:
   push_to_huggingface:
@@ -22,8 +22,11 @@ jobs:
         run: pip install huggingface_hub
 
       - name: Login to Hugging Face
-        run: huggingface-cli login --token ${{ secrets.HG }}
+        run: huggingface-cli login --token ${{ secrets.HF_TOKEN }}
 
       - name: Push files to Hugging Face
-        run: git clone https://huggingface.co/spaces/rithuikprakash/hack_hound
+        run: |
+          from huggingface_hub import Repository
+          repo = Repository(local_dir="hack_hound", clone_from="rithuikprakash/hack_hound", use_auth_token=True)
+          repo.push_to_hub()
         shell: python
